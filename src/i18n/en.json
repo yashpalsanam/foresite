@@ -1,0 +1,36 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "loading": "Loading...",
+    "noData": "No data available"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalUsers": "Total Users",
+    "totalProperties": "Total Properties",
+    "totalInquiries": "Total Inquiries"
+  },
+  "properties": {
+    "title": "Properties",
+    "addProperty": "Add Property",
+    "editProperty": "Edit Property"
+  },
+  "users": {
+    "title": "Users",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role"
+  }
+}
