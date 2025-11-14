@@ -27,14 +27,14 @@ export default defineConfig(({ mode }) => {
     },
 
     server: {
-      port: 5000,
+      port: 3000,
       host: '0.0.0.0',
       strictPort: false,
       allowedHosts: true,
       hmr: {
         protocol: 'ws',
         host: 'localhost',
-        port: 5000,
+        port: 3000,
       },
       proxy: {
         '/api': {
