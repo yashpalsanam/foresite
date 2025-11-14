@@ -1,5 +1,5 @@
 // src/context/AuthContext.jsx
-import React, { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { authApi } from '../api/authApi';
 import { tokenManager } from '../utils/tokenManager';
 
@@ -45,45 +45,37 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      // authApi.login returns { success, user, accessToken, refreshToken, message } directly
       const response = await authApi.login({ email, password });
-      
+
       // Debug logging
       console.log('Full response:', response);
-      console.log('Response data:', response.data);
-      
-      // Handle response structure - backend returns { success, message, data: { user, accessToken, refreshToken } }
-      const responseData = response.data?.data || response.data;
-      
-      console.log('Extracted responseData:', responseData);
-      
-      if (!responseData || typeof responseData !== 'object') {
-        console.error('Invalid response structure:', response.data);
-        throw new Error(response.data?.message || 'Invalid response from server');
+
+      if (!response || typeof response !== 'object') {
+        console.error('Invalid response structure:', response);
+        throw new Error('Invalid response from server');
       }
-      
-      const { accessToken, refreshToken, user: loggedUser } = responseData;
+
+      const { accessToken, user: loggedUser } = response;
 
       if (!accessToken) {
-        const msg = response.data?.message || 'No token received from server';
-        console.error('Login response missing token:', response.data);
+        const msg = response.message || 'No token received from server';
+        console.error('Login response missing token:', response);
         throw new Error(msg);
       }
 
-      tokenManager.setToken(accessToken);
-      if (refreshToken) tokenManager.setRefreshToken?.(refreshToken);
+      // Tokens are already set by authApi.login, but we set user state here
       if (loggedUser) {
-        tokenManager.setUser?.(loggedUser);
         setUser(loggedUser);
       } else {
         setUser(null);
       }
 
       setIsAuthenticated(true);
-      return responseData;
+      return response;
     } catch (error) {
       const serverMessage = error?.response?.data?.message || error.message || 'Login failed';
       console.error('Login error:', error?.response?.data || error.message || error);
-      // throw a meaningful Error so UI can show it
       throw new Error(serverMessage);
     }
   };
