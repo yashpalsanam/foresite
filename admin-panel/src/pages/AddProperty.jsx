@@ -70,6 +70,13 @@ const AddProperty = () => {
       }
     } catch (error) {
       console.error('Failed to fetch property:', error);
+      // If property not found (404), redirect to properties list
+      if (error.response?.status === 404) {
+        toast.error('Property not found. It may have been deleted.');
+        navigate('/properties');
+      } else {
+        toast.error('Failed to load property details.');
+      }
     }
   };
 
@@ -504,7 +511,12 @@ const AddProperty = () => {
               type="text"
               value={keywordInput}
               onChange={(e) => setKeywordInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddKeyword())}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddKeyword();
+                }
+              }}
               placeholder="Type a keyword and press Enter"
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
@@ -543,7 +555,12 @@ const AddProperty = () => {
               type="text"
               value={amenityInput}
               onChange={(e) => setAmenityInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddAmenity())}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddAmenity();
+                }
+              }}
               placeholder="Type an amenity and press Enter"
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
