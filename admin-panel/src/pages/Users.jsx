@@ -6,6 +6,7 @@ import SearchBar from '../components/forms/SearchBar';
 import Pagination from '../components/common/Pagination';
 import Loader from '../components/common/Loader';
 import { formatDate } from '../utils/formatDate';
+import { toast } from 'react-hot-toast';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -49,11 +50,11 @@ const Users = () => {
         setUsers(prev =>
           prev.map(u => (u._id === userId ? { ...u, isActive: !currentStatus } : u))
         );
-        alert(`User ${currentStatus ? 'deactivated' : 'activated'} successfully`);
+        toast.success(`User ${currentStatus ? 'deactivated' : 'activated'} successfully`);
       }
     } catch (error) {
       console.error('Failed to toggle user status:', error);
-      alert(error.response?.data?.message || 'Failed to update user status');
+      toast.error(error.response?.data?.message || 'Failed to update user status');
     }
   };
 
@@ -66,11 +67,35 @@ const Users = () => {
       const response = await userApi.deleteUser(userId);
       if (response.success) {
         setUsers(prev => prev.filter(u => u._id !== userId));
-        alert('User deleted successfully');
+        toast.success('User deleted successfully');
       }
     } catch (error) {
       console.error('Failed to delete user:', error);
-      alert(error.response?.data?.message || 'Failed to delete user');
+      toast.error(error.response?.data?.message || 'Failed to delete user');
+    }
+  };
+
+  const handleRoleChange = async (userId, newRole, currentRole) => {
+    if (newRole === currentRole) return;
+
+    if (!window.confirm(`Are you sure you want to change this user's role to ${newRole}?`)) {
+      return;
+    }
+
+    try {
+      const response = await userApi.updateUser(userId, { role: newRole });
+      if (response.success) {
+        setUsers(prev =>
+          prev.map(u => (u._id === userId ? { ...u, role: newRole } : u))
+        );
+        toast.success(`User role updated to ${newRole} successfully`);
+      }
+    } catch (error) {
+      console.error('Failed to update user role:', error);
+      toast.error(error.response?.data?.message || 'Failed to update user role');
+      setUsers(prev =>
+        prev.map(u => (u._id === userId ? { ...u, role: currentRole } : u))
+      );
     }
   };
 
@@ -80,14 +105,20 @@ const Users = () => {
     {
       key: 'role',
       label: 'Role',
-      render: (role) => (
-        <span className={`px-2 py-1 text-xs rounded-full ${
-          role === 'admin' ? 'bg-purple-100 text-purple-800' :
-          role === 'agent' ? 'bg-blue-100 text-blue-800' :
-          'bg-gray-100 text-gray-800'
-        }`}>
-          {role}
-        </span>
+      render: (role, user) => (
+        <select
+          value={role}
+          onChange={(e) => handleRoleChange(user._id, e.target.value, role)}
+          className={`px-3 py-1 text-xs rounded-lg border-0 cursor-pointer transition-colors ${
+            role === 'admin' ? 'bg-purple-100 text-purple-800' :
+            role === 'agent' ? 'bg-blue-100 text-blue-800' :
+            'bg-gray-100 text-gray-800'
+          }`}
+        >
+          <option value="user">User</option>
+          <option value="agent">Agent</option>
+          <option value="admin">Admin</option>
+        </select>
       ),
     },
     {

@@ -46,7 +46,21 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await authApi.login({ email, password });
+      
+      // Debug logging
+      console.log('Full response:', response);
+      console.log('Response data:', response.data);
+      
+      // Handle response structure - backend returns { success, message, data: { user, accessToken, refreshToken } }
       const responseData = response.data?.data || response.data;
+      
+      console.log('Extracted responseData:', responseData);
+      
+      if (!responseData || typeof responseData !== 'object') {
+        console.error('Invalid response structure:', response.data);
+        throw new Error(response.data?.message || 'Invalid response from server');
+      }
+      
       const { accessToken, refreshToken, user: loggedUser } = responseData;
 
       if (!accessToken) {

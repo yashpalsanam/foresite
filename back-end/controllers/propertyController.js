@@ -86,7 +86,11 @@ export const createProperty = asyncHandler(async (req, res) => {
   const propertyData = req.body;
 
   if (propertyData.address) {
-    const fullAddress = `${propertyData.address.street}, ${propertyData.address.city}, ${propertyData.address.state} ${propertyData.address.zipCode}`;
+    const { street, city, state, zipCode } = propertyData.address;
+    const fullAddress = `${street}, ${city}, ${state} ${zipCode || ''}`.trim();
+    
+    logger.info(`Geocoding address: ${fullAddress}`);
+    
     const location = await geocodeAddress(fullAddress);
     propertyData.location = {
       type: 'Point',

@@ -41,6 +41,7 @@ const AddProperty = () => {
     keywords: [],
   });
   const [images, setImages] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
   const [keywordInput, setKeywordInput] = useState('');
@@ -62,7 +63,10 @@ const AddProperty = () => {
           location: {
             coordinates: property.location?.coordinates || ['', ''],
           },
+          amenities: property.amenities || [],
+          keywords: property.keywords || [],
         });
+        setExistingImages(property.images || []);
       }
     } catch (error) {
       console.error('Failed to fetch property:', error);
@@ -213,6 +217,29 @@ const AddProperty = () => {
     });
   };
 
+  const handleDeleteImage = async (imageId) => {
+    const imageToDelete = existingImages.find(img => img._id === imageId);
+    
+    setExistingImages(prev => prev.filter(img => img._id !== imageId));
+    setLoading(true);
+    
+    try {
+      await propertyApi.deleteImage(id, imageId);
+      toast.success('Image deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete image:', error);
+      toast.error('Failed to delete image');
+      if (imageToDelete) {
+        setExistingImages(prev => {
+          const exists = prev.find(img => img._id === imageId);
+          return exists ? prev : [...prev, imageToDelete];
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -223,19 +250,44 @@ const AddProperty = () => {
         : await propertyApi.createProperty(formData);
 
       if (response.success) {
-        if (images.length > 0 && response.data.property._id) {
-          const formDataImages = new FormData();
-          images.forEach((image) => {
-            formDataImages.append('files', image);
-          });
-          await propertyApi.uploadImages(response.data.property._id, formDataImages);
+        const propertyId = response.data.property._id;
+        let shouldNavigate = true;
+        
+        if (images.length > 0) {
+          try {
+            const formDataImages = new FormData();
+            images.forEach((image) => {
+              formDataImages.append('files', image);
+            });
+            const uploadResponse = await propertyApi.uploadImages(propertyId, formDataImages);
+            
+            if (uploadResponse.success && isEdit) {
+              const updatedProperty = await propertyApi.getPropertyById(propertyId);
+              if (updatedProperty.success) {
+                setExistingImages(updatedProperty.data.property.images || []);
+              }
+              setImages([]);
+            }
+            
+            toast.success(isEdit ? 'Property and images updated!' : 'Property created!');
+          } catch (uploadError) {
+            console.error('Failed to upload images:', uploadError);
+            toast.error('Property saved but image upload failed. Please try uploading images again.');
+            if (isEdit) {
+              shouldNavigate = false;
+            }
+          }
+        } else {
+          toast.success(isEdit ? 'Property updated!' : 'Property created!');
         }
 
-        toast.success(isEdit ? 'Property updated!' : 'Property created!');
-        navigate('/properties');
+        if (shouldNavigate) {
+          navigate('/properties');
+        }
       }
     } catch (error) {
       console.error('Failed to save property:', error);
+      toast.error('Failed to save property');
     } finally {
       setLoading(false);
     }
@@ -521,17 +573,46 @@ const AddProperty = () => {
           )}
         </div>
 
-        {!isEdit && (
-          <div className="mt-6">
-            <FileUploader
-              label="Property Images"
-              name="images"
-              onChange={setImages}
-              multiple
-              accept="image/*"
-            />
-          </div>
-        )}
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            {isEdit ? 'Manage Images' : 'Property Images'}
+          </h3>
+          
+          {isEdit && existingImages.length > 0 && (
+            <div className="mb-6">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Existing Images</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {existingImages.map((image) => (
+                  <div key={image._id} className="relative group">
+                    <img
+                      src={image.url}
+                      alt="Property"
+                      className="w-full h-32 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteImage(image._id)}
+                      disabled={loading}
+                      className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          <FileUploader
+            label={isEdit ? "Upload Additional Images" : "Upload Images"}
+            name="images"
+            onChange={setImages}
+            multiple
+            accept="image/*"
+          />
+        </div>
 
         <div className="flex gap-4 mt-6">
           <Button type="submit" variant="primary" loading={loading}>

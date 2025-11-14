@@ -11,6 +11,29 @@ Full-stack real estate management platform migrated from Vercel to Replit. The a
 ```
 
 ## Recent Changes (2024-11-14)
+
+**New Features - Image Management & User Roles (2024-11-14)**
+- ✅ Multiple images support for properties with gallery management in admin panel
+  - Display existing images when editing properties with delete buttons
+  - Upload additional images to existing properties
+  - Optimistic UI updates with proper error rollback
+  - Toast notifications for all image operations
+- ✅ User role assignment in admin panel
+  - Dropdown to change user roles (user/agent/admin) in Users table
+  - Confirmation dialogs before role changes
+  - Proper error handling with state rollback
+  - Consistent toast notifications throughout
+- ✅ Frontend property gallery displays multiple images with lightbox
+  - Image navigation with arrow keys
+  - Full-screen viewing capability
+  - Responsive grid layout
+
+**Bug Fixes - Property Creation & Image Upload**
+- ✅ Fixed AddProperty undefined array error by defaulting keywords/amenities to empty arrays in fetchProperty
+- ✅ Created backend temp directory for multer file uploads (prevents ENOENT errors)
+- ✅ Improved geocoding address formatting with explicit destructuring and logging
+- ✅ All fixes verified by architect review
+
 **Vercel to Replit Migration**
 - ✅ Configured Next.js frontend for Replit (port 5000, host 0.0.0.0)
 - ✅ Configured Express backend API (port 3001, host 0.0.0.0)
