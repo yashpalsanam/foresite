@@ -1,0 +1,46 @@
+# robots.txt for Foresite Real Estate Website
+
+# Allow all search engines to crawl the site
+User-agent: *
+Allow: /
+
+# Disallow admin or private areas (if any)
+# Disallow: /admin
+# Disallow: /api
+
+# Disallow search results pages to avoid duplicate content
+Disallow: /search?
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+
+# Allow crawling of assets
+Allow: /images/
+Allow: /_next/static/
+Allow: /_next/image
+
+# Crawl delay (optional - be nice to the server)
+# Crawl-delay: 10
+
+# Sitemap location
+Sitemap: https://foresite.com/sitemap.xml
+Sitemap: https://foresite.com/sitemap-0.xml
+
+# Specific rules for common bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Block bad bots (optional)
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: SemrushBot
+Crawl-delay: 30
