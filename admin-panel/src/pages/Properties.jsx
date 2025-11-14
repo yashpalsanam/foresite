@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { propertyApi } from '../api/propertyApi';
 import Button from '../components/common/Button';
@@ -10,6 +10,7 @@ import Loader from '../components/common/Loader';
 
 const Properties = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -18,7 +19,7 @@ const Properties = () => {
 
   useEffect(() => {
     fetchProperties();
-  }, [currentPage, search]);
+  }, [currentPage, search, location.state?.refresh]);
 
   const fetchProperties = async () => {
     try {

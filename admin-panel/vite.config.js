@@ -31,6 +31,11 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       strictPort: false,
       allowedHosts: true,
+      hmr: {
+        protocol: 'ws',
+        host: 'localhost',
+        port: 5000,
+      },
       proxy: {
         '/api': {
           target: env.VITE_API_URL || 'http://localhost:3001',

@@ -258,43 +258,53 @@ const AddProperty = () => {
 
       if (response.success) {
         const propertyId = response.data.property._id;
-        let shouldNavigate = true;
-        
+
+        // Handle image uploads if any
         if (images.length > 0) {
           try {
             const formDataImages = new FormData();
             images.forEach((image) => {
               formDataImages.append('files', image);
             });
+
             const uploadResponse = await propertyApi.uploadImages(propertyId, formDataImages);
-            
-            if (uploadResponse.success && isEdit) {
-              const updatedProperty = await propertyApi.getPropertyById(propertyId);
-              if (updatedProperty.success) {
-                setExistingImages(updatedProperty.data.property.images || []);
+
+            if (uploadResponse.success) {
+              if (isEdit) {
+                // Refresh property data to show new images
+                const updatedProperty = await propertyApi.getPropertyById(propertyId);
+                if (updatedProperty.success) {
+                  setExistingImages(updatedProperty.data.property.images || []);
+                  setImages([]);
+                }
               }
-              setImages([]);
+              toast.success(isEdit ? 'Property and images updated successfully!' : 'Property and images created successfully!');
+            } else {
+              throw new Error('Image upload failed');
             }
-            
-            toast.success(isEdit ? 'Property and images updated!' : 'Property created!');
           } catch (uploadError) {
             console.error('Failed to upload images:', uploadError);
-            toast.error('Property saved but image upload failed. Please try uploading images again.');
+            toast.error('Property saved but image upload failed. Please try again.');
+
+            // Don't navigate if in edit mode, let user retry upload
             if (isEdit) {
-              shouldNavigate = false;
+              setLoading(false);
+              return;
             }
           }
         } else {
-          toast.success(isEdit ? 'Property updated!' : 'Property created!');
+          toast.success(isEdit ? 'Property updated successfully!' : 'Property created successfully!');
         }
 
-        if (shouldNavigate) {
-          navigate('/properties');
-        }
+        // Navigate back to properties list and force refresh
+        navigate('/properties', { replace: true, state: { refresh: Date.now() } });
+      } else {
+        throw new Error(response.message || 'Failed to save property');
       }
     } catch (error) {
       console.error('Failed to save property:', error);
-      toast.error('Failed to save property');
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to save property';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -12,28 +12,36 @@ const FileUploader = ({
 }) => {
   const [previews, setPreviews] = useState([]);
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
     const validFiles = [];
-    const newPreviews = [];
 
-    files.forEach((file) => {
+    // Validate files
+    for (const file of files) {
       if (file.size > maxSize * 1024 * 1024) {
         alert(`File ${file.name} is too large. Max size: ${maxSize}MB`);
-        return;
+        continue;
       }
-
       validFiles.push(file);
+    }
 
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          newPreviews.push({ name: file.name, url: reader.result });
-          setPreviews([...newPreviews]);
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+    // Generate previews for images
+    if (validFiles.length > 0) {
+      const previewPromises = validFiles
+        .filter(file => file.type.startsWith('image/'))
+        .map(file => {
+          return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              resolve({ name: file.name, url: reader.result });
+            };
+            reader.readAsDataURL(file);
+          });
+        });
+
+      const newPreviews = await Promise.all(previewPromises);
+      setPreviews(prevPreviews => [...prevPreviews, ...newPreviews]);
+    }
 
     onChange(multiple ? validFiles : validFiles[0]);
   };
@@ -57,7 +65,7 @@ const FileUploader = ({
           id={name}
           name={name}
           onChange={handleFileChange}
-          multiple={multiple}
+          {...(multiple && { multiple: true })}
           accept={accept}
           className="hidden"
         />
