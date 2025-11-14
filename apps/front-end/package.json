@@ -1,5 +1,5 @@
 {
-  "name": "foresite-website",
+  "name": "@foresite/front-end",
   "version": "1.0.0",
   "description": "Foresite Real Estate - User-facing website built with Next.js",
   "private": true,

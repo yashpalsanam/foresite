@@ -1,5 +1,5 @@
 {
-  "name": "foresite-backend",
+  "name": "@foresite/back-end",
   "version": "1.0.0",
   "description": "Foresite real estate management backend API",
   "main": "server.js",
