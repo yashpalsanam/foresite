@@ -27,12 +27,13 @@ export default defineConfig(({ mode }) => {
     },
 
     server: {
-      port: 3000,
-      host: true,
+      port: 3002,
+      host: '0.0.0.0',
       strictPort: true,
+      allowedHosts: true,
       proxy: {
         '/api': {
-          target: env.VITE_API_URL || 'http://localhost:5000',
+          target: env.VITE_API_URL || 'http://localhost:3001',
           changeOrigin: true,
           secure: false,
           rewrite: (p) => p.replace(/^\/api/, '/api')
@@ -61,8 +62,8 @@ export default defineConfig(({ mode }) => {
     },
 
     preview: {
-      port: 3000,
-      host: true,
+      port: 3002,
+      host: '0.0.0.0',
       strictPort: true
     }
   };

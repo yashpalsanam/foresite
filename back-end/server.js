@@ -41,7 +41,7 @@ const io = new Server(httpServer, {
   cors: corsConfig
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.BACKEND_PORT || 3001;
 const API_VERSION = process.env.API_VERSION || 'v1';
 const API_V1 = `/api/${API_VERSION}`;
 

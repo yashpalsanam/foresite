@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Button from '@/components/common/Button';
 import { useTheme } from '@/context/ThemeContext';
 import { useFavorites } from '@/context/FavoritesContext';
+import { useAuth } from '@/context/AuthContext';
 
 /**
  * Navbar Component
@@ -14,9 +15,16 @@ import { useFavorites } from '@/context/FavoritesContext';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const { favoritesCount } = useFavorites();
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
+  };
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -108,15 +116,69 @@ const Navbar = () => {
               )}
             </button>
 
-            {/* CTA Button */}
-            <Button
-              variant="primary"
-              size="sm"
-              className="hidden md:inline-flex"
-              onClick={() => router.push('/contact')}
-            >
-              Get Started
-            </Button>
+            {/* Auth Buttons */}
+            {isAuthenticated ? (
+              <div className="relative hidden md:block">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-neutral-100 transition-colors"
+                >
+                  <div className="h-8 w-8 bg-primary-600 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-medium">
+                      {user?.name?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <span className="text-sm font-medium text-neutral-700">{user?.name}</span>
+                  <svg className="h-4 w-4 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-1">
+                    <Link
+                      href="/profile"
+                      className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      href="/favorites"
+                      className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      Favorites
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setUserMenuOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-neutral-100"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center space-x-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => router.push('/login')}
+                >
+                  Login
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => router.push('/register')}
+                >
+                  Sign Up
+                </Button>
+              </div>
+            )}
 
             {/* Mobile menu button */}
             <button
@@ -175,16 +237,49 @@ const Navbar = () => {
                   </span>
                 )}
               </Link>
-              <Button
-                variant="primary"
-                fullWidth
-                onClick={() => {
-                  router.push('/contact');
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Get Started
-              </Button>
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    href="/profile"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-4 py-3 rounded-lg text-base font-medium text-neutral-700 hover:bg-neutral-100"
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left px-4 py-3 rounded-lg text-base font-medium text-red-600 hover:bg-neutral-100"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="secondary"
+                    fullWidth
+                    onClick={() => {
+                      router.push('/login');
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Login
+                  </Button>
+                  <Button
+                    variant="primary"
+                    fullWidth
+                    onClick={() => {
+                      router.push('/register');
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Sign Up
+                  </Button>
+                </>
+              )}
             </div>
           </motion.div>
         )}

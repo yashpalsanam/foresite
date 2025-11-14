@@ -9,45 +9,30 @@ export const connectRedis = async () => {
       socket: {
         host: process.env.REDIS_HOST || 'localhost',
         port: process.env.REDIS_PORT || 6379,
+        reconnectStrategy: false,
       },
       password: process.env.REDIS_PASSWORD || undefined,
     });
 
     redisClient.on('error', (err) => {
-      logger.error('Redis Client Error:', err);
-    });
-
-    redisClient.on('connect', () => {
-      logger.info('Redis connecting...');
-    });
-
-    redisClient.on('ready', () => {
-      logger.info('Redis client ready');
-    });
-
-    redisClient.on('reconnecting', () => {
-      logger.warn('Redis reconnecting...');
-    });
-
-    redisClient.on('end', () => {
-      logger.warn('Redis connection ended');
+      logger.warn('Redis unavailable - caching disabled');
     });
 
     await redisClient.connect();
-    
     await redisClient.ping();
     logger.info('Redis connection successful');
 
     return redisClient;
   } catch (error) {
-    logger.error('Redis connection failed:', error.message);
-    throw error;
+    logger.warn('Redis connection failed - continuing without caching');
+    redisClient = null;
+    return null;
   }
 };
 
 export const getRedisClient = () => {
   if (!redisClient || !redisClient.isOpen) {
-    throw new Error('Redis client is not connected');
+    return null;
   }
   return redisClient;
 };
@@ -60,6 +45,7 @@ export const disconnectRedis = async () => {
 };
 
 export const cacheGet = async (key) => {
+  if (!redisClient || !redisClient.isOpen) return null;
   try {
     const data = await redisClient.get(key);
     return data ? JSON.parse(data) : null;
@@ -70,6 +56,7 @@ export const cacheGet = async (key) => {
 };
 
 export const cacheSet = async (key, value, expiryInSeconds = 3600) => {
+  if (!redisClient || !redisClient.isOpen) return false;
   try {
     await redisClient.setEx(key, expiryInSeconds, JSON.stringify(value));
     return true;
@@ -80,6 +67,7 @@ export const cacheSet = async (key, value, expiryInSeconds = 3600) => {
 };
 
 export const cacheDel = async (key) => {
+  if (!redisClient || !redisClient.isOpen) return false;
   try {
     await redisClient.del(key);
     return true;
@@ -90,6 +78,7 @@ export const cacheDel = async (key) => {
 };
 
 export const cacheFlush = async () => {
+  if (!redisClient || !redisClient.isOpen) return false;
   try {
     await redisClient.flushAll();
     logger.info('Redis cache flushed');

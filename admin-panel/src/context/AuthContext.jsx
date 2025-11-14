@@ -47,15 +47,15 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authApi.login({ email, password });
       const responseData = response.data?.data || response.data;
-      const { token, refreshToken, user: loggedUser } = responseData;
+      const { accessToken, refreshToken, user: loggedUser } = responseData;
 
-      if (!token) {
+      if (!accessToken) {
         const msg = response.data?.message || 'No token received from server';
         console.error('Login response missing token:', response.data);
         throw new Error(msg);
       }
 
-      tokenManager.setToken(token);
+      tokenManager.setToken(accessToken);
       if (refreshToken) tokenManager.setRefreshToken?.(refreshToken);
       if (loggedUser) {
         tokenManager.setUser?.(loggedUser);

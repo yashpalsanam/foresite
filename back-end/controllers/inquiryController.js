@@ -206,3 +206,52 @@ export const getInquiryStats = asyncHandler(async (req, res) => {
     },
   });
 });
+
+export const createPublicInquiry = asyncHandler(async (req, res) => {
+  const { name, email, phone, subject, message, propertyId } = req.body;
+
+  if (!name || !email || !message) {
+    return res.status(400).json({
+      success: false,
+      message: 'Name, email, and message are required',
+    });
+  }
+
+  const inquiryData = {
+    name,
+    email,
+    phone,
+    message,
+    inquiryType: subject || 'general',
+    property: propertyId || null,
+    user: null,
+    status: 'pending',
+  };
+
+  const inquiry = await Inquiry.create(inquiryData);
+
+  logger.info(`Public inquiry created: ${inquiry._id} from ${email}`);
+
+  try {
+    await sendEmail({
+      to: email,
+      subject: 'Thank You for Contacting Foresite Real Estate',
+      html: `
+        <h2>Thank You for Your Inquiry</h2>
+        <p>Dear ${name},</p>
+        <p>Thank you for reaching out to us. We have received your message and will get back to you as soon as possible.</p>
+        <p><strong>Your Message:</strong></p>
+        <p>${message}</p>
+        <p>Best regards,<br>Foresite Real Estate Team</p>
+      `,
+    });
+  } catch (error) {
+    logger.error('Failed to send public inquiry confirmation email:', error);
+  }
+
+  res.status(201).json({
+    success: true,
+    message: 'Your message has been sent successfully. We will get back to you soon!',
+    data: { inquiry },
+  });
+});

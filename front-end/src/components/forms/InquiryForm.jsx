@@ -103,7 +103,7 @@ const InquiryForm = ({ property, isOpen, onClose }) => {
               <div className="flex-1">
                 <p className="font-medium text-neutral-900 text-sm">{property.title}</p>
                 <p className="text-sm text-neutral-600">
-                  ${property.price?.toLocaleString()} • {property.bedrooms} bed • {property.bathrooms} bath
+                  ${property.price?.toLocaleString()} • {property.features?.bedrooms || 0} bed • {property.features?.bathrooms || 0} bath
                 </p>
               </div>
             </div>

@@ -69,6 +69,11 @@ const propertySchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    keywords: {
+      type: [String],
+      default: [],
+      index: true,
+    },
     images: [
       {
         url: { type: String, required: true },

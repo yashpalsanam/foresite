@@ -1,7 +1,7 @@
 // src/pages/Login.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi } from '../api/authApi';
+import { useAuth } from '../hooks/useAuth';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +11,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -27,33 +28,19 @@ const Login = () => {
     try {
       console.log('Attempting login with:', formData.email);
       
-      const response = await authApi.login(formData);
+      // Use AuthContext login method
+      await login(formData.email, formData.password);
       
-      console.log('Login response:', response);
-
-      if (response.success) {
-        console.log('Login successful! User:', response.user);
-        console.log('Navigating to dashboard...');
-        
-        // Navigate to dashboard
-        navigate('/dashboard', { replace: true });
-      } else {
-        setError(response.message || 'Login failed');
-      }
+      console.log('Login successful! Navigating to dashboard...');
+      
+      // Navigate to dashboard
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       console.error('Login error:', err);
       
       // Handle different error types
-      if (err.response) {
-        // Server responded with error
-        setError(err.response.data?.message || 'Invalid credentials');
-      } else if (err.request) {
-        // Request made but no response
-        setError('Unable to connect to server. Please try again.');
-      } else {
-        // Other errors
-        setError(err.message || 'An error occurred during login');
-      }
+      const errorMessage = err.message || 'An error occurred during login';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

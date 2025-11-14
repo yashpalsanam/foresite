@@ -12,23 +12,35 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
   const totalInquiries = await Inquiry.countDocuments();
   const pendingInquiries = await Inquiry.countDocuments({ status: 'pending' });
 
+  // Limit recent users to 5 most recent
   const recentUsers = await User.find()
     .sort({ createdAt: -1 })
     .limit(5)
     .select('name email role createdAt');
 
+  // Limit recent properties to 5 most recent
   const recentProperties = await Property.find()
     .sort({ createdAt: -1 })
     .limit(5)
     .select('title price status listingType createdAt');
 
+  // Limit recent inquiries to 5 most recent
   const recentInquiries = await Inquiry.find()
     .sort({ createdAt: -1 })
     .limit(5)
     .populate('property', 'title')
     .populate('user', 'name email');
 
+  // User growth for last 12 months only
+  const twelveMonthsAgo = new Date();
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
   const userGrowth = await User.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: twelveMonthsAgo }
+      }
+    },
     {
       $group: {
         _id: {

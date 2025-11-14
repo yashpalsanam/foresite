@@ -18,7 +18,7 @@ export const sendContactEmail = async (formData) => {
     };
   }
 
-  const url = `${API_CONFIG.BASE_URL}/contact`;
+  const url = `${API_CONFIG.BASE_URL}/inquiries/public`;
 
   try {
     const response = await fetch(url, {
@@ -32,27 +32,26 @@ export const sendContactEmail = async (formData) => {
         phone,
         subject: subject || 'Contact Form Submission',
         message,
-        source: 'website',
       }),
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Failed to send email: ${response.status}`);
+      throw new Error(errorData.message || `Failed to send message: ${response.status}`);
     }
 
     const data = await response.json();
     
     return {
       success: true,
-      message: data.message || 'Email sent successfully',
+      message: data.message || 'Message sent successfully',
     };
   } catch (error) {
     console.error('Error sending contact email:', error);
     
     return {
       success: false,
-      error: error.message || 'Failed to send email',
+      error: error.message || 'Failed to send message',
     };
   }
 };

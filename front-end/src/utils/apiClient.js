@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { STORAGE_KEYS } from './constants';
 
 /**
  * API Client Configuration
@@ -6,7 +7,7 @@ import axios from 'axios';
  */
 
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1',
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001/api/v1',
   timeout: 15000, // 15 seconds
   headers: {
     'Content-Type': 'application/json',
@@ -22,7 +23,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     // Get token from localStorage (if using JWT authentication)
-    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN) : null;
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -87,8 +88,8 @@ apiClient.interceptors.response.use(
         case 401:
           // Unauthorized - Clear auth and redirect to login
           if (typeof window !== 'undefined') {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('user');
+            localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+            localStorage.removeItem(STORAGE_KEYS.USER);
             // Optionally redirect to login
             // window.location.href = '/login';
           }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { AuthProvider } from './AuthContext';
 import { ThemeProvider } from './ThemeContext';
 import { PropertyProvider } from './PropertyContext';
 import { UIProvider } from './UIContext';
@@ -12,15 +13,17 @@ import { FavoritesProvider } from './FavoritesContext';
 
 export const AppProviders = ({ children }) => {
   return (
-    <ThemeProvider>
-      <UIProvider>
-        <FavoritesProvider>
-          <PropertyProvider>
-            {children}
-          </PropertyProvider>
-        </FavoritesProvider>  
-      </UIProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <UIProvider>
+          <FavoritesProvider>
+            <PropertyProvider>
+              {children}
+            </PropertyProvider>
+          </FavoritesProvider>  
+        </UIProvider>
+      </ThemeProvider>
+    </AuthProvider>
   );
 };
 

@@ -7,6 +7,7 @@ import {
   deleteInquiry,
   getMyInquiries,
   getInquiryStats,
+  createPublicInquiry,
 } from '../controllers/inquiryController.js';
 import { authenticate } from '../middlewares/authMiddleware.js';
 import { isAdminOrAgent } from '../middlewares/roleMiddleware.js';
@@ -14,6 +15,7 @@ import { cacheMiddleware } from '../middlewares/cache.js';
 
 const router = express.Router();
 
+router.post('/public', createPublicInquiry);
 router.get('/', authenticate, isAdminOrAgent, cacheMiddleware(300), getAllInquiries);
 router.get('/my-inquiries', authenticate, getMyInquiries);
 router.get('/stats', authenticate, isAdminOrAgent, getInquiryStats);

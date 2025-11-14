@@ -37,10 +37,14 @@ const AddProperty = () => {
       area: '',
       areaUnit: 'sqft',
     },
+    amenities: [],
+    keywords: [],
   });
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
+  const [keywordInput, setKeywordInput] = useState('');
+  const [amenityInput, setAmenityInput] = useState('');
 
   useEffect(() => {
     if (isEdit) {
@@ -172,6 +176,40 @@ const AddProperty = () => {
       location: {
         coordinates: newCoordinates,
       },
+    });
+  };
+
+  const handleAddKeyword = () => {
+    if (keywordInput.trim() && !formData.keywords.includes(keywordInput.trim())) {
+      setFormData({
+        ...formData,
+        keywords: [...formData.keywords, keywordInput.trim()],
+      });
+      setKeywordInput('');
+    }
+  };
+
+  const handleRemoveKeyword = (keyword) => {
+    setFormData({
+      ...formData,
+      keywords: formData.keywords.filter(k => k !== keyword),
+    });
+  };
+
+  const handleAddAmenity = () => {
+    if (amenityInput.trim() && !formData.amenities.includes(amenityInput.trim())) {
+      setFormData({
+        ...formData,
+        amenities: [...formData.amenities, amenityInput.trim()],
+      });
+      setAmenityInput('');
+    }
+  };
+
+  const handleRemoveAmenity = (amenity) => {
+    setFormData({
+      ...formData,
+      amenities: formData.amenities.filter(a => a !== amenity),
     });
   };
 
@@ -401,6 +439,84 @@ const AddProperty = () => {
                   View on Google Maps →
                 </a>
               </p>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Keywords</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Add keywords to help users find this property (e.g., pool, waterfront, modern)</p>
+          
+          <div className="flex gap-2 mb-3">
+            <input
+              type="text"
+              value={keywordInput}
+              onChange={(e) => setKeywordInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddKeyword())}
+              placeholder="Type a keyword and press Enter"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+            <Button type="button" variant="secondary" onClick={handleAddKeyword}>
+              Add
+            </Button>
+          </div>
+          
+          {formData.keywords.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {formData.keywords.map((keyword, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm"
+                >
+                  {keyword}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveKeyword(keyword)}
+                    className="hover:text-blue-900 dark:hover:text-blue-100"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Amenities</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Add property amenities (e.g., Parking, Gym, Security)</p>
+          
+          <div className="flex gap-2 mb-3">
+            <input
+              type="text"
+              value={amenityInput}
+              onChange={(e) => setAmenityInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddAmenity())}
+              placeholder="Type an amenity and press Enter"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+            <Button type="button" variant="secondary" onClick={handleAddAmenity}>
+              Add
+            </Button>
+          </div>
+          
+          {formData.amenities.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {formData.amenities.map((amenity, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm"
+                >
+                  {amenity}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAmenity(amenity)}
+                    className="hover:text-green-900 dark:hover:text-green-100"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
             </div>
           )}
         </div>

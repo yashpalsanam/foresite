@@ -4,11 +4,8 @@ import { logger } from './logger.js';
 dotenv.config();
 
 const requiredEnvVars = [
-  'NODE_ENV',
-  'PORT',
   'MONGO_URI',
   'JWT_SECRET',
-  'REDIS_HOST',
 ];
 
 const optionalEnvVars = [

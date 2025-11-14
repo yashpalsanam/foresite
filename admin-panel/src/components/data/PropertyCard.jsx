@@ -1,8 +1,15 @@
-import { MapPin, Bed, Bath, Maximize } from 'lucide-react';
+import { MapPin, Bed, Bath, Maximize, Trash2 } from 'lucide-react';
 import { formatDate } from '../../utils/formatDate';
 
-const PropertyCard = ({ property, onClick }) => {
+const PropertyCard = ({ property, onClick, onDelete }) => {
   const primaryImage = property.images?.find(img => img.isPrimary)?.url || property.images?.[0]?.url;
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    if (onDelete) {
+      onDelete(property);
+    }
+  };
 
   return (
     <div
@@ -15,7 +22,7 @@ const PropertyCard = ({ property, onClick }) => {
           alt={property.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute top-2 right-2">
+        <div className="absolute top-2 right-2 flex gap-2">
           <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
             property.status === 'available' ? 'bg-green-500 text-white' :
             property.status === 'sold' ? 'bg-red-500 text-white' :
@@ -24,6 +31,15 @@ const PropertyCard = ({ property, onClick }) => {
             {property.status}
           </span>
         </div>
+        {onDelete && (
+          <button
+            onClick={handleDelete}
+            className="absolute top-2 left-2 p-2 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors"
+            title="Delete property"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       <div className="p-4">

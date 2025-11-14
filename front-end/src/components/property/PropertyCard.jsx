@@ -15,21 +15,28 @@ import clsx from 'clsx';
 
 const PropertyCard = ({ property, className = '', priority = false }) => {
   const { isFavorite, toggleFavorite } = useFavorites();
-  const isPropertyFavorite = isFavorite(property.id);
-
+  
   const {
     id,
+    _id,
     title,
     price,
     images,
-    bedrooms,
-    bathrooms,
-    area,
-    location,
-    type,
+    features,
+    address,
+    propertyType,
     status,
-    featured,
+    isFeatured,
   } = property;
+
+  const propertyId = id || _id;
+  const bedrooms = features?.bedrooms || property.bedrooms || 0;
+  const bathrooms = features?.bathrooms || property.bathrooms || 0;
+  const area = features?.area || property.area || 0;
+  const location = { city: address?.city, state: address?.state } || property.location;
+  const featured = isFeatured || property.featured;
+  
+  const isPropertyFavorite = isFavorite(propertyId);
 
   const primaryImage = images && images.length > 0 
     ? (images[0].url || images[0])
@@ -48,7 +55,7 @@ const PropertyCard = ({ property, className = '', priority = false }) => {
       transition={{ duration: 0.3 }}
       className={clsx('group', className)}
     >
-      <Link href={`/property/${id}`}>
+      <Link href={`/property/${propertyId}`}>
         <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col">
           {/* Image Container */}
           <div className="relative h-56 overflow-hidden bg-neutral-100">

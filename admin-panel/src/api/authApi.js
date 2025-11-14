@@ -48,13 +48,13 @@ export const authApi = {
 
   // Get current user profile
   getProfile: async () => {
-    const response = await axiosInstance.get('/users/profile');
+    const response = await axiosInstance.get('/auth/me');
     return response.data;
   },
 
   // Update profile
   updateProfile: async (data) => {
-    const response = await axiosInstance.patch('/users/profile', data);
+    const response = await axiosInstance.put('/auth/update-profile', data);
     
     // Update stored user data if successful
     if (response.data.success && response.data.data) {
@@ -66,7 +66,7 @@ export const authApi = {
 
   // Change password
   changePassword: async (passwords) => {
-    const response = await axiosInstance.post('/auth/change-password', passwords);
+    const response = await axiosInstance.put('/auth/change-password', passwords);
     return response.data;
   },
 

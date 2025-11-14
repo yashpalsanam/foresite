@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { inquiryApi } from '../api/inquiryApi';
+import { CheckCircle, XCircle, Clock } from 'lucide-react';
 import Table from '../components/data/Table';
 import Pagination from '../components/common/Pagination';
 import Loader from '../components/common/Loader';
@@ -30,6 +31,21 @@ const Inquiries = () => {
       console.error('Failed to fetch inquiries:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateStatus = async (inquiryId, newStatus) => {
+    try {
+      const response = await inquiryApi.updateInquiry(inquiryId, { status: newStatus });
+      if (response.success) {
+        setInquiries(prev =>
+          prev.map(inq => (inq._id === inquiryId ? { ...inq, status: newStatus } : inq))
+        );
+        alert(`Inquiry marked as ${newStatus}`);
+      }
+    } catch (error) {
+      console.error('Failed to update inquiry status:', error);
+      alert(error.response?.data?.message || 'Failed to update inquiry status');
     }
   };
 
@@ -67,6 +83,41 @@ const Inquiries = () => {
       key: 'createdAt',
       label: 'Date',
       render: (date) => formatDate(date, 'PP'),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (_, inquiry) => (
+        <div className="flex gap-2">
+          {inquiry.status !== 'pending' && (
+            <button
+              onClick={() => handleUpdateStatus(inquiry._id, 'pending')}
+              className="p-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-600 rounded-lg transition-colors"
+              title="Mark as pending"
+            >
+              <Clock className="w-4 h-4" />
+            </button>
+          )}
+          {inquiry.status !== 'completed' && (
+            <button
+              onClick={() => handleUpdateStatus(inquiry._id, 'completed')}
+              className="p-2 bg-green-100 hover:bg-green-200 text-green-600 rounded-lg transition-colors"
+              title="Mark as completed"
+            >
+              <CheckCircle className="w-4 h-4" />
+            </button>
+          )}
+          {inquiry.status !== 'cancelled' && (
+            <button
+              onClick={() => handleUpdateStatus(inquiry._id, 'cancelled')}
+              className="p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors"
+              title="Mark as cancelled"
+            >
+              <XCircle className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      ),
     },
   ];
 

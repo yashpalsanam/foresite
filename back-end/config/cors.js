@@ -40,11 +40,12 @@ const corsConfig = {
       return callback(null, true);
     }
 
-    // In development, allow all localhost/127.0.0.1 origins
+    // In development, allow all localhost/127.0.0.1 origins and Replit domains
     if (process.env.NODE_ENV === 'development') {
       const isLocalhost = origin.startsWith('http://localhost') || 
                          origin.startsWith('http://127.0.0.1');
-      if (isLocalhost) {
+      const isReplit = origin.includes('.replit.dev');
+      if (isLocalhost || isReplit) {
         return callback(null, true);
       }
     }

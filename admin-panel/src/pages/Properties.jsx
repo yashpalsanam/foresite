@@ -44,6 +44,23 @@ const Properties = () => {
     setCurrentPage(1);
   };
 
+  const handleDelete = async (property) => {
+    if (!window.confirm(`Are you sure you want to delete "${property.title}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await propertyApi.deleteProperty(property._id);
+      if (response.success) {
+        setProperties(prev => prev.filter(p => p._id !== property._id));
+        alert('Property deleted successfully');
+      }
+    } catch (error) {
+      console.error('Failed to delete property:', error);
+      alert(error.response?.data?.message || 'Failed to delete property');
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -79,6 +96,7 @@ const Properties = () => {
                 key={property._id}
                 property={property}
                 onClick={(prop) => navigate(`/properties/edit/${prop._id}`)}
+                onDelete={handleDelete}
               />
             ))}
           </div>

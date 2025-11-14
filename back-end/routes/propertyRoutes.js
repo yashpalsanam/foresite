@@ -21,7 +21,7 @@ const router = express.Router();
 router.get('/', optionalAuth, cacheMiddleware(600), getAllProperties);
 router.get('/featured', cacheMiddleware(600), getFeaturedProperties);
 router.get('/nearby', cacheMiddleware(300), getNearbyProperties);
-router.get('/stats', authenticate, isAdmin, getPropertyStats);
+router.get('/stats', getPropertyStats);
 router.get('/:id', optionalAuth, getPropertyById);
 router.post('/', authenticate, isAdminOrAgent, invalidateCache(), createProperty);
 router.put('/:id', authenticate, isAdminOrAgent, invalidateCache(), updateProperty);

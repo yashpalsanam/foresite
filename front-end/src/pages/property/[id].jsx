@@ -31,6 +31,29 @@ export default function PropertyDetailPage({ property, similarProperties }) {
     );
   }
 
+  const mapLocation = property.location?.coordinates
+    ? {
+        lat: property.location.coordinates[1],
+        lng: property.location.coordinates[0],
+        latitude: property.location.coordinates[1],
+        longitude: property.location.coordinates[0],
+        address: property.address?.street ? `${property.address.street}, ${property.address.city}, ${property.address.state} ${property.address.zipCode}` : null,
+        city: property.address?.city,
+        state: property.address?.state,
+        zipCode: property.address?.zipCode,
+      }
+    : null;
+
+  const propertyFeatures = {
+    bedrooms: property.features?.bedrooms,
+    bathrooms: property.features?.bathrooms,
+    area: property.features?.area,
+    areaUnit: property.features?.areaUnit || 'sqft',
+    yearBuilt: property.features?.yearBuilt,
+    parking: property.features?.parking,
+    floors: property.features?.floors,
+  };
+
   return (
     <>
       <PropertySEOHead property={property} />
@@ -70,7 +93,7 @@ export default function PropertyDetailPage({ property, similarProperties }) {
                     <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     </svg>
-                    {property.location?.address || `${property.location?.city}, ${property.location?.state}`}
+                    {property.address?.street ? `${property.address.street}, ${property.address.city}, ${property.address.state}` : `${property.address?.city || ''}, ${property.address?.state || ''}`}
                   </p>
                   <p className="text-sm text-neutral-500 mt-2">
                     {formatListingDate(property.createdAt)}
@@ -83,19 +106,20 @@ export default function PropertyDetailPage({ property, similarProperties }) {
                     <p className="text-3xl md:text-4xl font-bold text-primary-600">
                       {formatPrice(property.price)}
                     </p>
+                    <p className="text-sm text-neutral-600 mt-1">{property.listingType === 'rent' ? 'per month' : ''}</p>
                   </div>
                   <div className="flex items-center space-x-6 text-sm text-neutral-600">
                     <div className="text-center">
-                      <p className="font-semibold text-2xl text-neutral-900">{property.bedrooms}</p>
+                      <p className="font-semibold text-2xl text-neutral-900">{propertyFeatures.bedrooms || 0}</p>
                       <p>Beds</p>
                     </div>
                     <div className="text-center">
-                      <p className="font-semibold text-2xl text-neutral-900">{property.bathrooms}</p>
+                      <p className="font-semibold text-2xl text-neutral-900">{propertyFeatures.bathrooms || 0}</p>
                       <p>Baths</p>
                     </div>
                     <div className="text-center">
-                      <p className="font-semibold text-2xl text-neutral-900">{formatArea(property.area)}</p>
-                      <p>Area</p>
+                      <p className="font-semibold text-2xl text-neutral-900">{formatArea(propertyFeatures.area || 0)}</p>
+                      <p>{propertyFeatures.areaUnit}</p>
                     </div>
                   </div>
                 </div>
@@ -109,13 +133,38 @@ export default function PropertyDetailPage({ property, similarProperties }) {
                 </div>
 
                 {/* Property Specs */}
-                <PropertySpecs property={property} />
+                <PropertySpecs property={{
+                  type: property.propertyType,
+                  bedrooms: propertyFeatures.bedrooms,
+                  bathrooms: propertyFeatures.bathrooms,
+                  area: propertyFeatures.area,
+                  yearBuilt: propertyFeatures.yearBuilt,
+                  floors: propertyFeatures.floors,
+                  parking: propertyFeatures.parking,
+                }} />
 
                 {/* Features & Amenities */}
-                <PropertyFeatures amenities={property.amenities} features={property.features} />
+                <PropertyFeatures amenities={property.amenities || []} features={[]} />
+
+                {/* Keywords */}
+                {property.keywords && property.keywords.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-semibold text-neutral-900 mb-3">Property Keywords</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {property.keywords.map((keyword, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm"
+                        >
+                          {keyword}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Location Map */}
-                {property.location && <PropertyMap location={property.location} />}
+                {mapLocation && <PropertyMap location={mapLocation} />}
               </div>
 
               {/* Sidebar */}

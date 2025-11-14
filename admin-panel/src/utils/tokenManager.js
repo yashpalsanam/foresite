@@ -20,6 +20,24 @@ export const tokenManager = {
   },
 
   /**
+   * Store single token (alias for setTokens for compatibility)
+   * @param {string} token - JWT access token
+   */
+  setToken: (token) => {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    }
+  },
+
+  /**
+   * Get access token from storage (alias for getAccessToken)
+   * @returns {string|null} Access token or null
+   */
+  getToken: () => {
+    return localStorage.getItem(TOKEN_KEY);
+  },
+
+  /**
    * Get access token from storage
    * @returns {string|null} Access token or null
    */
@@ -69,6 +87,15 @@ export const tokenManager = {
   },
 
   /**
+   * Clear all authentication data (alias for compatibility)
+   */
+  clearAll: () => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+  },
+
+  /**
    * Check if user is authenticated
    * @returns {boolean} True if access token exists
    */
@@ -111,5 +138,11 @@ export const tokenManager = {
     }
   }
 };
+
+// Export individual functions for convenience
+export const getToken = tokenManager.getToken;
+export const setToken = tokenManager.setToken;
+export const getRefreshToken = tokenManager.getRefreshToken;
+export const clearAll = tokenManager.clearAll;
 
 export default tokenManager;

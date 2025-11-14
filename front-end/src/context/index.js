@@ -4,6 +4,7 @@
  */
 
 // Context Providers
+export { AuthProvider, useAuth } from './AuthContext';
 export { ThemeProvider, useTheme } from './ThemeContext';
 export { PropertyProvider, useProperty } from './PropertyContext';
 export { UIProvider, useUI } from './UIContext';

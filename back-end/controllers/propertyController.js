@@ -37,6 +37,8 @@ export const getAllProperties = asyncHandler(async (req, res) => {
       { description: { $regex: search, $options: 'i' } },
       { 'address.city': { $regex: search, $options: 'i' } },
       { 'address.state': { $regex: search, $options: 'i' } },
+      { keywords: { $in: [new RegExp(search, 'i')] } },
+      { amenities: { $in: [new RegExp(search, 'i')] } },
     ];
   }
 
