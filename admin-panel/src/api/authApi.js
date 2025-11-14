@@ -6,27 +6,36 @@ export const authApi = {
   // Login
   login: async (credentials) => {
     const response = await axiosInstance.post('/auth/login', credentials);
-    
-    // Extract data from nested response structure
+
+    // Handle both response structures:
+    // 1. Nested: { success, message, data: { user, accessToken, refreshToken } }
+    // 2. Flat: { success, message, user, accessToken, refreshToken }
+
+    let user, accessToken, refreshToken;
+
     if (response.data.success && response.data.data) {
-      const { accessToken, refreshToken, user } = response.data.data;
-      
-      // Store tokens and user data
-      tokenManager.setTokens(accessToken, refreshToken);
-      tokenManager.setUser(user);
-      
-      // Return flattened structure for easier use
-      return {
-        success: true,
-        user,
-        accessToken,
-        refreshToken,
-        message: response.data.message
-      };
+      // Nested structure
+      ({ accessToken, refreshToken, user } = response.data.data);
+    } else if (response.data.success && response.data.accessToken) {
+      // Flat structure (actual backend response)
+      ({ accessToken, refreshToken, user } = response.data);
+    } else {
+      // Invalid structure
+      return response.data;
     }
-    
-    // Return original response if structure is different
-    return response.data;
+
+    // Store tokens and user data
+    tokenManager.setTokens(accessToken, refreshToken);
+    tokenManager.setUser(user);
+
+    // Return consistent flattened structure
+    return {
+      success: true,
+      user,
+      accessToken,
+      refreshToken,
+      message: response.data.message
+    };
   },
 
   // Register
